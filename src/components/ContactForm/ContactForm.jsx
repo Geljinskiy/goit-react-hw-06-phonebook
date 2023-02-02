@@ -1,14 +1,20 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { addContact } from 'redux/contactsSlice';
+import { getContacts } from 'redux/selectors';
 
 import MainButtonStyle from 'components/Common/styled-components/MainButton';
 import Label from 'components/Common/styled-components/Label';
 import Form from 'components/Common/styled-components/Form';
 
-const ContactForm = ({ addContact }) => {
+const ContactForm = () => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
 
   const onInput = ev => {
     const input = ev.currentTarget;
@@ -19,14 +25,27 @@ const ContactForm = ({ addContact }) => {
     }
   };
 
+  const onAddingContact = ({ name, number }) => {
+    const isExist = contacts.filter(contact => contact.name === name).length;
+
+    if (isExist) {
+      alert(`${name} is already in contacts.`);
+      return;
+    }
+
+    dispatch(addContact(name, number));
+    console.log(contacts);
+  };
+
   const onFormSubmit = ev => {
     ev.preventDefault();
 
-    addContact({ name: name, number: number });
+    onAddingContact({ name: name, number: number });
     ev.currentTarget.reset();
     setName('');
     setNumber('');
   };
+
   return (
     <Form onSubmit={onFormSubmit}>
       <Label>
@@ -56,10 +75,6 @@ const ContactForm = ({ addContact }) => {
       <MainButtonStyle type="submit">Add to contact</MainButtonStyle>
     </Form>
   );
-};
-
-ContactForm.propTypes = {
-  addContact: PropTypes.func.isRequired,
 };
 
 export default ContactForm;

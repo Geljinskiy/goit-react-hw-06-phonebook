@@ -1,13 +1,42 @@
-import PropTypes from 'prop-types';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts, getFilter } from 'redux/selectors';
 
-import css from './ContactList.module.css';
+import { deleteContact } from 'redux/contactsSlice';
+import { useEffect } from 'react';
 
 import MainButtonStyle from 'components/Common/styled-components/MainButton';
+import css from './ContactList.module.css';
 
-const ContactList = ({ contacts, onDelete }) => {
+const ContactList = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
+
+  useEffect(() => {
+    window.localStorage.setItem('savedContacts', JSON.stringify(contacts));
+  }, [contacts]);
+
+  const getVisibleContacts = () => {
+    const regNormolize = sentence => {
+      return sentence.toLowerCase().trim();
+    };
+    return contacts.filter(contact => {
+      return (
+        regNormolize(contact.name).includes(regNormolize(filter)) ||
+        regNormolize(contact.number).includes(regNormolize(filter))
+      );
+    });
+  };
+
+  const onDelete = id => {
+    dispatch(deleteContact(id));
+  };
+
+  const visibleContacts = getVisibleContacts();
+
   return (
     <ul>
-      {contacts.map(({ id, name, number }) => {
+      {visibleContacts.map(({ id, name, number }) => {
         return (
           <li className={css.listItem} key={id}>
             <div className={css.listWrapper}>
@@ -26,14 +55,3 @@ const ContactList = ({ contacts, onDelete }) => {
 };
 
 export default ContactList;
-
-ContactList.propsTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      name: PropTypes.string,
-      number: PropTypes.string,
-    })
-  ),
-  onDelete: PropTypes.func.isRequired,
-};
