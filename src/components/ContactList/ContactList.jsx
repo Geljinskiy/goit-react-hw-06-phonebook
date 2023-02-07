@@ -2,19 +2,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getContacts, getFilter } from 'redux/selectors';
 
 import { deleteContact } from 'redux/contactsSlice';
-import { useEffect } from 'react';
 
 import MainButtonStyle from 'components/Common/styled-components/MainButton';
 import css from './ContactList.module.css';
 
 const ContactList = () => {
   const dispatch = useDispatch();
-  const contacts = useSelector(getContacts);
+  const {contacts} = useSelector(getContacts);
   const filter = useSelector(getFilter);
 
-  useEffect(() => {
-    window.localStorage.setItem('savedContacts', JSON.stringify(contacts));
-  }, [contacts]);
 
   const getVisibleContacts = () => {
     const regNormolize = sentence => {
